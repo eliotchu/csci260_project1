@@ -98,4 +98,17 @@ public class Patient{
         LocalDate dateOfBirth = LocalDate.ofInstant(this.dateOfBirth.toInstant(), ZoneId.systemDefault());
         return Period.between(dateOfBirth, today).getYears();
     }
+
+    protected int getTimeAsPatient(){
+        LocalDate initalVist = LocalDate.ofInstant(this.dateOfInitialVisit.toInstant(), ZoneId.systemDefault());
+        LocalDate lastVist = LocalDate.ofInstant(this.dateOfLastVisit.toInstant(), ZoneId.systemDefault());
+        return Period.between(initalVist, lastVist).getYears();
+    }
+
+    protected int getTimeSinceLastVist(){
+        LocalDate today = LocalDate.now();
+        LocalDate lastVist = LocalDate.ofInstant(this.dateOfLastVisit.toInstant(), ZoneId.systemDefault());
+        return Period.between(lastVist, today).getYears();
+    }
+
 }
