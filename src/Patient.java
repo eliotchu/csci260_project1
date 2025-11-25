@@ -6,9 +6,9 @@ import java.util.Date;
 public class Patient{
     //instance variables
     private String name;
-    private final String patientID; //final variable to store unique IDs
-    private static int idCounter = 1; //static counter to assign patients contiguous and unique IDs
-    private int width; //dynamic number of leading zeroes in ID
+    private final String patientID; //final variable so id cannot be changed
+//    private static int idCounter = 1; //static counter to assign patients contiguous and unique IDs
+//    private int width; //dynamic number of leading zeroes in ID
     private String address;
     private int height; //measured in inches
     private double weight;
@@ -17,7 +17,8 @@ public class Patient{
     private Date dateOfLastVisit;
 
     //constructor to initialize a patient's details
-    protected Patient(String name, String address, int height, double weight, Date dateOfBirth, Date dateOfInitialVisit, Date dateOfLastVisit){
+    protected Patient(String name, String patientID, String address, int height, double weight,
+                      Date dateOfBirth, Date dateOfInitialVisit, Date dateOfLastVisit){
         this.name = name;
         this.address = address;
         this.height = height;
@@ -25,9 +26,10 @@ public class Patient{
         this.dateOfBirth = dateOfBirth;
         this.dateOfInitialVisit = dateOfInitialVisit;
         this.dateOfLastVisit = dateOfLastVisit;
-        width = 8 - String.valueOf(idCounter).length();
-        patientID = String.format("PT%0" + width + "d", idCounter);
-        idCounter++;
+        this.patientID = patientID;
+//        width = 8 - String.valueOf(idCounter).length();
+//        patientID = String.format("PT%0" + width + "d", idCounter);
+//        idCounter++;
     }
 
     //getter methods
@@ -92,23 +94,31 @@ public class Patient{
         this.dateOfLastVisit = dateOfLastVisit;
     }
 
-    //other methods
+    //calculates a patient's age in years
     protected int getAge(){
         LocalDate today = LocalDate.now();
         LocalDate dateOfBirth = LocalDate.ofInstant(this.dateOfBirth.toInstant(), ZoneId.systemDefault());
         return Period.between(dateOfBirth, today).getYears();
     }
 
+
+    //calculates how long a patient has been visiting from the first visit to today in years
     protected int getTimeAsPatient(){
-        LocalDate initalVist = LocalDate.ofInstant(this.dateOfInitialVisit.toInstant(), ZoneId.systemDefault());
-        LocalDate lastVist = LocalDate.ofInstant(this.dateOfLastVisit.toInstant(), ZoneId.systemDefault());
-        return Period.between(initalVist, lastVist).getYears();
+        LocalDate initialVisit = LocalDate.ofInstant(this.dateOfInitialVisit.toInstant(), ZoneId.systemDefault());
+        LocalDate today = LocalDate.now();
+        return Period.between(initialVisit, today).getYears();
     }
 
-    protected int getTimeSinceLastVist(){
+
+    //calculates how long ago from a patient's last visit to today in years
+    protected int getTimeSinceLastVisit(){
         LocalDate today = LocalDate.now();
-        LocalDate lastVist = LocalDate.ofInstant(this.dateOfLastVisit.toInstant(), ZoneId.systemDefault());
-        return Period.between(lastVist, today).getYears();
+        LocalDate lastVisit = LocalDate.ofInstant(this.dateOfLastVisit.toInstant(), ZoneId.systemDefault());
+        return Period.between(lastVisit, today).getYears();
     }
 
 }
+
+
+
+

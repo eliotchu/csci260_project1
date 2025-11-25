@@ -1,196 +1,167 @@
-public class List <T>{
+public class List<T>{
     protected Node<T> head;
     protected Node<T> tail;
-    protected Node<T> current;
     protected int numElements;
-    protected boolean found;
+
+    //used only for reset() and getNext()
+    protected Node<T> iterator;
+
     public List(){
         this.head = null;
         this.tail = null;
-        this.current = null;
+        this.iterator = null;
         this.numElements = 0;
     }
 
-    //checks if List is empty
+    //returns true if the list has no elements
     public boolean isEmpty(){
         return head == null;
     }
 
-    //linear search of specified data. returns node of where data is found, returns null if data not found
-    public Node<T> find(T data){
-        if(!isEmpty()){
-            reset();
-            while(current != null){
-                if(current.getData().equals(data)){
-                    found = true;
-                    return current;
-                }
-                current = current.getNextNode();
-            }
+    //prepares the iterator for sequential access
+    public void reset(){
+        iterator = head;
+    }
+
+    //returns current iterator value and then moves to the next node
+    public T getNext(){
+        if(iterator == null){
+            return null;
         }
-        found = false;
+        T data = iterator.data;
+        iterator = iterator.nextNode;
+        return data;
+    }
+
+    //searches for a node with the given data and returns the node
+    public Node<T> find(T data){
+        Node<T> current = head;
+        while(current != null){
+            if(current.getData().equals(data)){
+                return current;
+            }
+            current = current.getNextNode();
+        }
         return null;
     }
 
-    //checks if list contains specified data. returns true if found, else returns false if not found
+    //returns true if a matching element is found
     public boolean contains(T data){
-        find(data);
-        return found;
+        return find(data) != null;
     }
 
-    //adds an element to the end of List
+    //adds a new node at the end of list
     public void add(T data){
+        Node<T> newNode = new Node<>(data);
         if(isEmpty()){
-            head = new Node<T>(data);
-            tail = head;
-
-        }else{
-            tail.setNextNode(new Node<T>(data));
-            tail = tail.getNextNode();
+            head = newNode;
+            tail = newNode;
+        }
+        else{
+            tail.setNextNode(newNode);
+            tail = newNode;
         }
         numElements++;
     }
 
-    public T get(T data){
-        return find(data).getData();
-    }
-
-    /*
-    //removes element at the end of List
-    public T remove() throws ListUnderFlowException{
-        if(isEmpty()){
-            throw new ListUnderFlowException("List is empty");
-        }else{
-            Node<T> current = head;
-            Node<T> previous = null;
-            for(int i = 0; i < numElements; i++){
-                if(current.nextNode != null){
-                    previous = current;
-                }else{
-                    break;
-                }
-                current = current.nextNode;
-            }
-            previous.nextNode = null;
-            tail = previous;
-            numElements--;
-            return current.data;
+    //returns the stored version of a value if found
+    public T get(T data) {
+        Node<T> target = find(data);
+        if(target == null){
+            return null;
         }
+        return target.getData();
     }
-    */
 
-
-    //removes first node that contains target data, returns null if target data not found
+    //removes the first node that contains the target data
     public T remove(T data) throws ListUnderFlowException{
-        int count = 0;
-
         if(isEmpty()){
             throw new ListUnderFlowException("List is empty");
         }
 
-        //return null if data not found in list, otherwise, search for element and delete
+        //case 1: removing head
         if(head.getData().equals(data)){
-            T removedData = head.getData();
+            T removed = head.getData();
             head = head.getNextNode();
+
+            //if head becomes null, list is now empty
             if(head == null){
                 tail = null;
             }
             numElements--;
-            return removedData;
-        }else{
-            reset();
-            //check if next node is the tail or has the matching data, sets current to the node before the node with the matching data after loop condition is met
-            while(current.getNextNode() != null && !current.getNextNode().data.equals(data)){
-                current = current.getNextNode();
-                count++;
-            }
-            if(count == numElements){
-                return null;
-            }
-
-            Node<T> target = current.getNextNode();
-            T removedData = target.getData();
-            //if target (node after current and node with the matching data) is the last node (tail), set the new tail as current (node before matching data)
-            //this deletes the last node
-            if(target == tail){
-                tail = current;
-            }
-            //if target is not the tail delete the node with matching data
-            current.setNextNode(target.getNextNode());
-            numElements--;
-            return removedData;
+            return removed;
         }
 
+        //case 2: removing in the middle or end
+        Node<T> previous = head;
+        Node<T> current = head.getNextNode();
+        while(current != null && !current.getData().equals(data)){
+            previous = current;
+            current = current.getNextNode();
+        }
+
+        //case 3: not found
+        if(current == null){
+            return null;
+        }
+        T removed = current.getData();
+        previous.setNextNode(current.getNextNode());
+        if(current == tail){
+            tail = previous;
+        }
+        numElements--;
+        return removed;
     }
 
-    //returns size of list
+    //returns the number of elements stored
     public int size(){
-        return this.numElements;
+        return numElements;
     }
 
-    public void reset(){
-        this.current = head;
-    }
-
-    public T getNext(){
-        T next = current.data;
-        if(current.getNextNode() == null){
-            current = head;
-        }else{
-            current = current.getNextNode();
-        }
-        return current.getData();
-    }
-
-//    public String toString(){
-//        String[] toPrint = new String[numElements];
-//        reset();
-//        for(int i = 0; i < numElements; i++){
-//            toPrint[i] = "{currentNode: " + current + ", currentData: " + current.data + ", nextNode: " + current.nextNode + "}\n\t";
-//            if(current.nextNode != null){
-//                current = current.nextNode;
-//            }
-//        }
-//        return "[\n\t" + String.join(", ", toPrint) + "\n]";
-//    }
-
+    //returns a string listing all elements in order
     public String toString(){
-        String toPrint = "List: \n";
-        reset();
+        String s = "List:\n";
+        Node<T> current = head;
         while(current != null){
-            toPrint += "\t" + current.getData() + "\n";
+            s += "\t" + current.getData() + "\n";
             current = current.getNextNode();
         }
-        return toPrint;
+        return s;
     }
 }
 
 class Node<T>{
     T data;
     Node<T> nextNode;
+
     public Node(T data){
         this.data = data;
         this.nextNode = null;
     }
 
+    //getter methods
     public T getData(){
-        return this.data;
+        return data;
     }
 
     public Node<T> getNextNode(){
-        return this.nextNode;
+        return nextNode;
     }
 
-    public void setData(T data) {
+    //setter methods
+    public void setData(T data){
         this.data = data;
     }
 
-    public void setNextNode(Node<T> nextNode) {
+    public void setNextNode(Node<T> nextNode){
         this.nextNode = nextNode;
     }
 }
+
+//custom exception when some operations are performed on empty list
 class ListUnderFlowException extends Exception{
     public ListUnderFlowException(String message){
         super(message);
     }
 }
+
