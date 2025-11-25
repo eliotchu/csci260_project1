@@ -1,10 +1,8 @@
 public class List<T>{
     protected Node<T> head;
     protected Node<T> tail;
+    protected Node<T> iterator; //used only for reset() and getNext()
     protected int numElements;
-
-    //used only for reset() and getNext()
-    protected Node<T> iterator;
 
     public List(){
         this.head = null;
@@ -120,13 +118,13 @@ public class List<T>{
 
     //returns a string listing all elements in order
     public String toString(){
-        String s = "List:\n";
+        String toPrint = "List:\n";
         Node<T> current = head;
         while(current != null){
-            s += "\t" + current.getData() + "\n";
+            toPrint += "\t" + current.getData() + "\n";
             current = current.getNextNode();
         }
-        return s;
+        return toPrint  ;
     }
 }
 
